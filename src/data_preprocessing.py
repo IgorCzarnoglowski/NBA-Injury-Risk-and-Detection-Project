@@ -28,7 +28,17 @@ def convert_data_column(df: pd.DataFrame):
     df['GAME_DATE'] = pd.to_datetime(df['GAME_DATE']).dt.strftime('%d/%m/%Y')
     return df
 
+def rename_columns(df:pd.DataFrame, name: Literal['stats', 'injuries']):
+    if name not in ('stats', 'injuries'):
+        raise ValueError(f'Invalid name. Choose from: stats, injuries')
+    if name == 'stats':
+        df.rename(columns={
 
+        })
+    elif name == 'injuries':
+        df.rename(columns={
+
+        })
 
 
 
