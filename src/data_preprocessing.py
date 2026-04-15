@@ -7,8 +7,10 @@ def remove_duplicates(df: pd.DataFrame):
 
     return df
 
-def remove_unused_columns(df: pd.DataFrame, unused_columns: list):
+def remove_unused_columns(df: pd.DataFrame):
     print('Removing unused columns...')
+    unused_columns = ['SEASON_ID', 'VIDEO_AVAILABLE', 'PLAYER_ID', 'FG3_PCT', 'FG_PCT', 'FT_PCT']
+
     for c in unused_columns:
         if c in df.columns:
             df.drop(c, axis=1, inplace=True)
@@ -31,14 +33,13 @@ def convert_data_column(df: pd.DataFrame):
 def rename_columns(df:pd.DataFrame, name: Literal['stats', 'injuries']):
     if name not in ('stats', 'injuries'):
         raise ValueError(f'Invalid name. Choose from: stats, injuries')
+    df.columns = df.columns.str.lower()
     if name == 'stats':
         df.rename(columns={
+            'wl': 'result'
+        }, inplace=True)
 
-        })
-    elif name == 'injuries':
-        df.rename(columns={
-
-        })
+def
 
 
 
