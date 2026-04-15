@@ -39,8 +39,13 @@ def rename_columns(df:pd.DataFrame, name: Literal['stats', 'injuries']):
             'wl': 'result'
         }, inplace=True)
 
-def
+    return df
 
+def map_game_host(df:pd.DataFrame):
+    df['host_team'] = df['matchup'].apply(
+        lambda x: x[-3:] if '@' in x else x[:3]
+    )
+    return df
 
 
 
@@ -50,4 +55,4 @@ def
 if __name__ == '__main__':
     df = load_data()['stats']
     df = convert_data_column(df)
-    print(df['GAME_DATE'])
+    df = map_game_host(df)
