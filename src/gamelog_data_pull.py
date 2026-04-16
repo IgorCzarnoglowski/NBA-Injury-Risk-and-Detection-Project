@@ -1,47 +1,71 @@
-from nba_api.stats.endpoints import commonallplayers, playergamelog
+from nba_api.stats.endpoints import playergamelog
+from nba_api.stats.static import players
 import pandas as pd
 import time
+import os
 
-def get_all_gamelogs_for_season(season: str):
-    # Pobierz wszystkich graczy z sezonu
-    all_players = commonallplayers.CommonAllPlayers(
-        is_only_current_season=0,
-        season=season
-    )
-    players_df = all_players.get_data_frames()[0]
-    print(f"Znaleziono {len(players_df)} graczy")
-    print(players_df.columns.tolist())  # sprawdź kolumny
+DATASET_PATH = os.path.join(os.getcwd(), '..', 'data', 'Injury_History.csv')
 
+def get_player_id(player_name: str) -> int:
+    all_players = players.get_players()
+    player = [p for p in all_players if p['full_name'].lower() == player_name.lower()]
+
+    if not player:
+        raise ValueError(f"Nie znaleziono gracza: {player_name}")
+
+    return player[0]['id']
+
+def join_players_name_id(names: list):
+    data = []
+
+    for n in names:
+        player_id = get_player_id(n)
+        data.append({
+            'PLAYER_ID': player_id,
+            'PLAYER_NAME': n
+        })
+
+    df = pd.DataFrame(data)
+
+    return df
+
+def get_all_gamelogs_for_seasons(players: pd.DataFrame):
     all_gamelogs = []
+    seasons = ['2014-15', '2015-16', '2016-17', '2017-18', '2018-19', '2019-20']
 
-    for _, player in players_df.iterrows():
-        player_id = player['PERSON_ID']
-        player_name = player['DISPLAY_FIRST_LAST']  # podmień jeśli inna kolumna
+    for _, row in players.iterrows():
+        player_name = row['PLAYER_NAME']
+        for season in seasons:
+            try:
+                gamelog = playergamelog.PlayerGameLog(
+                    player_id=row['PLAYER_ID'],
+                    season=season,
+                    season_type_all_star='Regular Season'
+                )
+                df = gamelog.get_data_frames()[0]
 
-        try:
-            gamelog = playergamelog.PlayerGameLog(
-                player_id=player_id,
-                season=season,
-                season_type_all_star='Regular Season'
-            )
-            df = gamelog.get_data_frames()[0]
+                if df.empty:
+                    continue
 
-            if df.empty:
-                continue
+                all_gamelogs.append(df)
 
-            df['PLAYER_ID'] = player_id
-            df['PLAYER_NAME'] = player_name
-            all_gamelogs.append(df)
 
-            print(f"✓ {player_name} — {len(df)} meczów")
+                print(f"✓ {player_name} w sezonie {season} — {len(df)} meczów")
 
-        except Exception as e:
-            print(f"✗ {player_name} — błąd: {e}")
+            except Exception as e:
+                print(f"✗ {player_name} w sezonie {season} — błąd: {e}")
 
-        time.sleep(0.6)  # obowiązkowe
+            time.sleep(1)
 
     return pd.concat(all_gamelogs, ignore_index=True)
 
 
-df = get_all_gamelogs_for_season('2021-22')
-df.to_csv('gamelogs_2021_22.csv', index=False)
+if __name__ == '__main__':
+    injury_df = pd.read_csv(DATASET_PATH)
+    unique_names = injury_df['Name'].unique()
+    pd.set_option("display.max_columns", 100)
+
+    players_df = join_players_name_id(unique_names)
+
+    gamelogs = get_all_gamelogs_for_seasons(players_df)
+    gamelogs.to_csv('gamelogs_2014_2020.csv', index=False)
