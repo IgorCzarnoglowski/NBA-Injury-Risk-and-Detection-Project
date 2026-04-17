@@ -1,6 +1,7 @@
 import pandas as pd
 from data_loader import load_data
 from typing import Literal
+from src.gamelog_data_pull import get_player_id
 
 def remove_duplicates(df: pd.DataFrame):
     df.drop_duplicates(inplace=True)
@@ -10,7 +11,7 @@ def remove_duplicates(df: pd.DataFrame):
 def remove_unused_columns(df: pd.DataFrame):
     # Removing unused columns in gamelogs dataset
     print('Removing unused columns...')
-    unused_columns = ['SEASON_ID', 'VIDEO_AVAILABLE', 'FG3_PCT', 'FG_PCT', 'FT_PCT']
+    unused_columns = ['SEASON_ID', 'VIDEO_AVAILABLE', 'FG3_PCT', 'FG_PCT', 'FT_PCT', 'PLUS_MINUS']
 
     for c in unused_columns:
         if c in df.columns:
@@ -50,12 +51,19 @@ def map_game_host(df:pd.DataFrame):
     )
     return df
 
+def map_player_with_id(df: pd.DataFrame):
+    for idx, name in df['Name'].items():
+        player_id = get_player_id(name)
+        df.at[idx, 'Player_id'] = player_id
+    df['Player_id'] = df['Player_id'].astype(int)
+    return df
+
 
 
 
 
 
 if __name__ == '__main__':
-    df = load_data()['stats']
-    df = convert_data_column(df)
-    df = map_game_host(df)
+    df = load_data()['injuries']
+    df = map_player_with_id(df)
+    print(df.head(70))
