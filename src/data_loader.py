@@ -3,7 +3,7 @@ import pandas as pd
 
 DATASETS_DIR = os.path.join(os.getcwd(), '..', 'data')
 
-def load_data():
+def load_raw_data():
     df_injuries = pd.read_csv(os.path.join(DATASETS_DIR, 'Injury_History.csv'))
     df_stats = pd.read_csv(os.path.join(DATASETS_DIR, 'gamelogs_2021_22.csv'))
 
@@ -14,6 +14,6 @@ def load_data():
     return dataframes
 
 if __name__ == '__main__':
-    print(load_data()['injuries'].head())
-    print(load_data()['stats'].head())
+    print(load_raw_data()['injuries'].head())
+    print(load_raw_data()['stats'].head())
 

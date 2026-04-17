@@ -1,5 +1,5 @@
 import pandas as pd
-from data_loader import load_data
+from data_loader import load_raw_data
 from typing import Literal
 from src.gamelog_data_pull import get_player_id
 
@@ -64,6 +64,6 @@ def map_player_with_id(df: pd.DataFrame):
 
 
 if __name__ == '__main__':
-    df = load_data()['injuries']
+    df = load_raw_data()['injuries']
     df = map_player_with_id(df)
     print(df.head(70))
