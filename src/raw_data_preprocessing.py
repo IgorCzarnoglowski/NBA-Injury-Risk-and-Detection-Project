@@ -59,6 +59,14 @@ def map_game_host(df:pd.DataFrame):
     )
     return df
 
+def map_team_with_player(df: pd.DataFrame):
+    print('Mapping player to his team...')
+
+    df['player_team'] = df['matchup'].apply(
+        lambda x: x[:3]
+    )
+    return df
+
 def map_player_with_id(df: pd.DataFrame):
     print('Mapping id to the players...')
     for idx, name in df['Name'].items():
@@ -82,7 +90,7 @@ if __name__ == '__main__':
     injury_df['injury_id'] = range(len(injury_df))
     injury_df = injury_df.iloc[:, [6, 5, 0, 1, 2, 3, 4]]
     
-    injury_df.to_csv('Injury_History_Preprocessed.csv')
+    injury_df.to_csv('Injury_History_Preprocessed.csv', index=False)
 
     gamelog_df = load_raw_data()['stats']
     gamelog_df = remove_duplicates(gamelog_df)
@@ -91,11 +99,12 @@ if __name__ == '__main__':
     gamelog_df = rename_columns(gamelog_df, 'stats')
     gamelog_df = map_game_host(gamelog_df)
     gamelog_df['stats_id'] = range(len(gamelog_df))
-    front_cols = ['stats_id', 'game_id', 'season_id', 'player_id', 'host_team']
+    gamelog_df = map_team_with_player(gamelog_df)
+    front_cols = ['stats_id', 'game_id', 'season_id', 'player_id', 'player_team', 'host_team']
     remaining = [c for c in gamelog_df.columns if c not in front_cols]
     gamelog_df = gamelog_df[front_cols + remaining]
 
 
-    gamelog_df.to_csv('Gamelogs_2014-2020_Preprocessed.csv')
+    gamelog_df.to_csv('Gamelogs_2014-2020_Preprocessed.csv', index=False)
 
 
