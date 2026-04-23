@@ -87,8 +87,7 @@ if __name__ == '__main__':
     injury_df = join_positions(injury_df)
     injury_df = map_player_with_id(injury_df)
     injury_df = rename_columns(injury_df, 'injuries')
-    injury_df['injury_id'] = range(len(injury_df))
-    injury_df = injury_df.iloc[:, [6, 5, 0, 1, 2, 3, 4]]
+    injury_df = injury_df.iloc[:, [5, 0, 1, 2, 3, 4]]
     
     injury_df.to_csv('Injury_History_Preprocessed.csv', index=False)
 
@@ -98,9 +97,8 @@ if __name__ == '__main__':
     gamelog_df = convert_data_column(gamelog_df)
     gamelog_df = rename_columns(gamelog_df, 'stats')
     gamelog_df = map_game_host(gamelog_df)
-    gamelog_df['stats_id'] = range(len(gamelog_df))
     gamelog_df = map_team_with_player(gamelog_df)
-    front_cols = ['stats_id', 'game_id', 'season_id', 'player_id', 'player_team', 'host_team']
+    front_cols = ['game_id', 'season_id', 'player_id', 'player_team', 'host_team']
     remaining = [c for c in gamelog_df.columns if c not in front_cols]
     gamelog_df = gamelog_df[front_cols + remaining]
 
