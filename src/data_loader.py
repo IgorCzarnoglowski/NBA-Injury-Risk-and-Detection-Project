@@ -30,6 +30,6 @@ def load_csv_to_table(csv_path: str, table_name:str):
     df.to_sql(table_name, engine, if_exists='replace', index=False)
 
 if __name__ == '__main__':
-    print(load_raw_data()['injuries'].head())
-    print(load_raw_data()['stats'].head())
+    load_csv_to_table("../data/Injury_History_Classified_AI.csv", "injuries")
+    load_csv_to_table("../data/Gamelogs_2014-2020_Preprocessed.csv", "gamelogs")
 
