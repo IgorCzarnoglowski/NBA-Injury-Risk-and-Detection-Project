@@ -1,4 +1,4 @@
-from nba_api.stats.endpoints import playergamelog
+from nba_api.stats.endpoints import playergamelog, commonplayerinfo
 from nba_api.stats.static import players
 import pandas as pd
 import time
@@ -60,6 +60,22 @@ def get_all_gamelogs_for_seasons(players: pd.DataFrame):
     return pd.concat(all_gamelogs, ignore_index=True)
 
 
+def get_players_info(players_df: pd.DataFrame) -> pd.DataFrame:
+    info_rows = []
+
+    for _, row in players_df.iterrows():
+        try:
+            info = commonplayerinfo.CommonPlayerInfo(player_id=row['PLAYER_ID'])
+            df = info.get_data_frames()[0]
+            info_rows.append(df.iloc[0])
+            print(f"✓ {row['PLAYER_NAME']} — info fetched")
+        except Exception as e:
+            print(f"✗ {row['PLAYER_NAME']} — błąd: {e}")
+        time.sleep(1)
+
+    return pd.DataFrame(info_rows).reset_index(drop=True)
+
+
 if __name__ == '__main__':
     injury_df = pd.read_csv(DATASET_PATH)
     unique_names = injury_df['Name'].unique()
@@ -67,5 +83,8 @@ if __name__ == '__main__':
 
     players_df = join_players_name_id(unique_names)
 
-    gamelogs = get_all_gamelogs_for_seasons(players_df)
-    gamelogs.to_csv('gamelogs_2014_2020.csv', index=False)
+    #gamelogs = get_all_gamelogs_for_seasons(players_df)
+    #gamelogs.to_csv('gamelogs_2014_2020.csv', index=False)
+
+    players_info = get_players_info(players_df)
+    players_info.to_csv('players.csv', index=False)
